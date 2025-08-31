@@ -1,4 +1,10 @@
 import streamlit as st
+
+st.set_page_config(
+    page_title="Your App Title",
+    page_icon="🎯",
+    layout="wide"
+
 import pandas as pd
 from datetime import date, datetime
 import os
@@ -6,24 +12,6 @@ import time
 from supabase import create_client, Client
 import json
 
-# ==================== CEK STRUKTUR FOLDER ====================
-st.write("🔍 **Pengecekan Struktur Folder**")
-current_dir = os.getcwd()
-st.write(f"📁 Directory saat ini: `{current_dir}`")
-all_items = os.listdir()
-st.write("📋 File dan folder yang terdeteksi:", all_items)
-
-streamlit_folder_exists = os.path.exists(".streamlit")
-st.write(f"📁 Folder .streamlit: {'✅ ADA' if streamlit_folder_exists else '❌ TIDAK ADA'}")
-
-if streamlit_folder_exists:
-    streamlit_contents = os.listdir(".streamlit")
-    st.write("📄 Isi folder .streamlit:", streamlit_contents)
-    
-    secrets_exists = os.path.exists(".streamlit/secrets.toml")
-    st.write(f"🔐 File secrets.toml: {'✅ ADA' if secrets_exists else '❌ TIDAK ADA'}")
-
-st.markdown("---")
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
