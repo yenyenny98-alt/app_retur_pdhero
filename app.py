@@ -1,9 +1,10 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Your App Title",
-    page_icon="🎯",
-    layout="wide"
+    page_title="Pencatatan Retur PD Hero ke PT CAPP",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 import pandas as pd
 from datetime import date, datetime
@@ -12,13 +13,6 @@ import time
 from supabase import create_client, Client
 import json
 
-
-# ==================== KONFIGURASI HALAMAN ====================
-st.set_page_config(
-    page_title="Pencatatan Retur PD Hero ke PT CAPP",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Custom CSS untuk tampilan e-commerce
 st.markdown("""
