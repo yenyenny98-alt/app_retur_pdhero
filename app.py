@@ -46,6 +46,10 @@ st.markdown("""
         background-color: #E8DAFF;
         color: #8E44AD;
     }
+    .badge-sent {
+        background-color: #FFF3CD;
+        color: #856404;
+    }
     .sidebar-section {
         background-color: #f8f9fa;
         padding: 15px;
@@ -486,7 +490,7 @@ if st.session_state.show_add_form:
 
 # Tab Status Retur
 st.markdown("### 📊 Status Retur")
-tab1, tab2, tab3 = st.tabs(["Menunggu Persetujuan", "Sudah Disetujui", "Sudah Dimusnahkan"])
+tab1, tab2, tab3, tab4 = st.tabs(["Menunggu Persetujuan", "Sudah Disetujui", "Sudah Dimusnahkan", "Sudah Kirim ke Pak Taufik"])
 
 # Fungsi untuk filter data dengan safety check
 def filter_data_by_status(df, status):
@@ -523,6 +527,13 @@ with tab3:
     else:
         for idx, row in filtered_df.iterrows():  # <-- 'row' bukan 'retur'
             display_retur_card(row, "badge-destroyed", idx)
+with tab4:
+    filtered_df = filter_data_by_status(retur_df, "Sudah Kirim ke Pak Taufik")
+    if filtered_df.empty:
+        st.info("Tidak ada retur yang sudah dikirim ke Pak Taufik")
+    else:
+        for idx, row in filtered_df.iterrows():
+            display_retur_card(row, "badge-sent", idx)  # atau buat badge baru
 # Form Pemusnahan
 if st.session_state.show_destroy_form is not None:
     st.markdown("---")
