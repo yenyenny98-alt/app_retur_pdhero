@@ -264,7 +264,7 @@ def display_retur_card(retur, badge_class, idx):
             # Tombol status badge
             st.markdown(f"<span class='badge {badge_class}'>{retur['Status']}</span>", unsafe_allow_html=True)
         
-        # Tampilkan detail jika expanded
+                # Tampilkan detail jika expanded
         if is_expanded:
             st.markdown("---")
             st.markdown("### 📋 Detail Retur")
@@ -285,60 +285,60 @@ def display_retur_card(retur, badge_class, idx):
             
             st.markdown("---")
             
-            # Tombol aksi
-col7, col8, col9 = st.columns(3)
-
-with col7:
-    if retur['Status'] == "Menunggu Persetujuan":
-        if st.button("✅ Setujui", key=f"approve_{retur_id}_{idx}", use_container_width=True):
-            try:
-                retur_df = st.session_state.retur_data
-                main_idx = retur_df[retur_df['No Nota Retur'] == retur_id].index[0]
-                retur_df.loc[main_idx, "Status"] = "Sudah Disetujui"
-                retur_df.loc[main_idx, "Diupdate Pada"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                
-                if save_data_automatic(retur_df):
-                    st.success("✅ Retur disetujui dan disimpan otomatis!")
-                    time.sleep(1)
-                    st.rerun()
-            except Exception as e:
-                st.error(f"Error approving retur: {str(e)}")
-
-with col8:
-    if retur['Status'] == "Sudah Disetujui":
-        if st.button("🔥 Musnahkan", key=f"destroy_{retur_id}_{idx}", use_container_width=True):
-            st.session_state.show_destroy_form = idx
-            st.rerun()
+            # TOMBOL AKSI - DI DALAM if is_expanded:
+            col7, col8, col9 = st.columns(3)
             
-    elif retur['Status'] == "Sudah Dimusnahkan":
-        if st.button("📤 Kirim ke Pak Taufik", key=f"send_{retur_id}_{idx}", use_container_width=True):
-            try:
-                retur_df = st.session_state.retur_data
-                main_idx = retur_df[retur_df['No Nota Retur'] == retur_id].index[0]
-                retur_df.loc[main_idx, "Status"] = "Sudah Kirim ke Pak Taufik"
-                retur_df.loc[main_idx, "Diupdate Pada"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                
-                if save_data_automatic(retur_df):
-                    st.success("✅ Retur sudah dikirim ke Pak Taufik!")
-                    time.sleep(1)
-                    st.rerun()
-            except Exception as e:
-                st.error(f"Error updating status: {str(e)}")
-
-with col9:
-    if st.button("🗑️ Hapus", key=f"delete_{retur_id}_{idx}", use_container_width=True):
-        try:
-            # Hapus dari Supabase
-            if delete_retur(retur_id):
-                # Refresh data
-                st.session_state.retur_data = load_data()
-                st.success("✅ Retur dihapus dan disimpan otomatis!")
-                time.sleep(1)
-                st.rerun()
-        except Exception as e:
-            st.error(f"Error deleting retur: {str(e)}")
-
-st.markdown("---")
+            with col7:
+                if retur['Status'] == "Menunggu Persetujuan":
+                    if st.button("✅ Setujui", key=f"approve_{retur_id}_{idx}", use_container_width=True):
+                        try:
+                            retur_df = st.session_state.retur_data
+                            main_idx = retur_df[retur_df['No Nota Retur'] == retur_id].index[0]
+                            retur_df.loc[main_idx, "Status"] = "Sudah Disetujui"
+                            retur_df.loc[main_idx, "Diupdate Pada"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            
+                            if save_data_automatic(retur_df):
+                                st.success("✅ Retur disetujui dan disimpan otomatis!")
+                                time.sleep(1)
+                                st.rerun()
+                        except Exception as e:
+                            st.error(f"Error approving retur: {str(e)}")
+            
+            with col8:
+                if retur['Status'] == "Sudah Disetujui":
+                    if st.button("🔥 Musnahkan", key=f"destroy_{retur_id}_{idx}", use_container_width=True):
+                        st.session_state.show_destroy_form = idx
+                        st.rerun()
+                        
+                elif retur['Status'] == "Sudah Dimusnahkan":
+                    if st.button("📤 Kirim ke Pak Taufik", key=f"send_{retur_id}_{idx}", use_container_width=True):
+                        try:
+                            retur_df = st.session_state.retur_data
+                            main_idx = retur_df[retur_df['No Nota Retur'] == retur_id].index[0]
+                            retur_df.loc[main_idx, "Status"] = "Sudah Kirim ke Pak Taufik"
+                            retur_df.loc[main_idx, "Diupdate Pada"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            
+                            if save_data_automatic(retur_df):
+                                st.success("✅ Retur sudah dikirim ke Pak Taufik!")
+                                time.sleep(1)
+                                st.rerun()
+                        except Exception as e:
+                            st.error(f"Error updating status: {str(e)}")
+            
+            with col9:
+                if st.button("🗑️ Hapus", key=f"delete_{retur_id}_{idx}", use_container_width=True):
+                    try:
+                        # Hapus dari Supabase
+                        if delete_retur(retur_id):
+                            # Refresh data
+                            st.session_state.retur_data = load_data()
+                            st.success("✅ Retur dihapus dan disimpan otomatis!")
+                            time.sleep(1)
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Error deleting retur: {str(e)}")
+            
+            st.markdown("---")
 # ==================== BAGIAN UTAMA APLIKASI ====================
 # Load data jika belum diload
 if st.session_state.retur_data is None:
