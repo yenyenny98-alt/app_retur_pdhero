@@ -286,37 +286,59 @@ def display_retur_card(retur, badge_class, idx):
             st.markdown("---")
             
             # Tombol aksi
-            col7, col8 = st.columns(2)
-            
-            with col7:
-                if retur['Status'] == "Menunggu Persetujuan":
-                    if st.button("✅ Setujui", key=f"approve_{retur_id}_{idx}", use_container_width=True):
-                        # Update status di Supabase
-                        retur_df = st.session_state.retur_data
-                        main_idx = retur_df[retur_df['No Nota Retur'] == retur_id].index[0]
-                        retur_df.loc[main_idx, "Status"] = "Sudah Disetujui"
-                        retur_df.loc[main_idx, "Diupdate Pada"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        if save_data_automatic(retur_df):
-                            st.success("✅ Retur disetujui dan disimpan otomatis!")
-                            time.sleep(1)
-                            st.rerun()
-                elif retur['Status'] == "Sudah Disetujui":
-                    if st.button("🔥 Musnahkan", key=f"destroy_{retur_id}_{idx}", use_container_width=True):
-                        st.session_state.show_destroy_form = idx
-                        st.rerun()
-            
-            with col8:
-                if st.button("🗑️ Hapus", key=f"delete_{retur_id}_{idx}", use_container_width=True):
-                    # Hapus dari Supabase
-                    if delete_retur(retur_id):
-                        # Refresh data
-                        st.session_state.retur_data = load_data()
-                        st.success("✅ Retur dihapus dan disimpan otomatis!")
-                        time.sleep(1)
-                        st.rerun()
-        
-        st.markdown("---")
+col7, col8, col9 = st.columns(3)
 
+with col7:
+    if retur['Status'] == "Menunggu Persetujuan":
+        if st.button("✅ Setujui", key=f"approve_{retur_id}_{idx}", use_container_width=True):
+            try:
+                retur_df = st.session_state.retur_data
+                main_idx = retur_df[retur_df['No Nota Retur'] == retur_id].index[0]
+                retur_df.loc[main_idx, "Status"] = "Sudah Disetujui"
+                retur_df.loc[main_idx, "Diupdate Pada"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                
+                if save_data_automatic(retur_df):
+                    st.success("✅ Retur disetujui dan disimpan otomatis!")
+                    time.sleep(1)
+                    st.rerun()
+            except Exception as e:
+                st.error(f"Error approving retur: {str(e)}")
+
+with col8:
+    if retur['Status'] == "Sudah Disetujui":
+        if st.button("🔥 Musnahkan", key=f"destroy_{retur_id}_{idx}", use_container_width=True):
+            st.session_state.show_destroy_form = idx
+            st.rerun()
+            
+    elif retur['Status'] == "Sudah Dimusnahkan":
+        if st.button("📤 Kirim ke Pak Taufik", key=f"send_{retur_id}_{idx}", use_container_width=True):
+            try:
+                retur_df = st.session_state.retur_data
+                main_idx = retur_df[retur_df['No Nota Retur'] == retur_id].index[0]
+                retur_df.loc[main_idx, "Status"] = "Sudah Kirim ke Pak Taufik"
+                retur_df.loc[main_idx, "Diupdate Pada"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                
+                if save_data_automatic(retur_df):
+                    st.success("✅ Retur sudah dikirim ke Pak Taufik!")
+                    time.sleep(1)
+                    st.rerun()
+            except Exception as e:
+                st.error(f"Error updating status: {str(e)}")
+
+with col9:
+    if st.button("🗑️ Hapus", key=f"delete_{retur_id}_{idx}", use_container_width=True):
+        try:
+            # Hapus dari Supabase
+            if delete_retur(retur_id):
+                # Refresh data
+                st.session_state.retur_data = load_data()
+                st.success("✅ Retur dihapus dan disimpan otomatis!")
+                time.sleep(1)
+                st.rerun()
+        except Exception as e:
+            st.error(f"Error deleting retur: {str(e)}")
+
+st.markdown("---")
 # ==================== BAGIAN UTAMA APLIKASI ====================
 # Load data jika belum diload
 if st.session_state.retur_data is None:
@@ -414,7 +436,7 @@ if st.session_state.show_add_form:
             
             tanggal_ed = st.date_input("Tanggal ED*")
             alasan_option = st.selectbox("Alasan Retur*", [
-                "Kadarluasa", 
+                "Kedaluwarsa", 
                 "Plastik Dalam Pecah", 
                 "Lembab dan Menggumpal", 
                 "Isi sendiri"
@@ -537,4 +559,4 @@ if st.session_state.show_destroy_form is not None:
 
 # ==================== FOOTER ====================
 st.markdown("---")
-st.caption("© 2024 PD Hero - PT CAPP Retur Management System | Cloud Database | Data tersimpan permanen")
+st.caption("© PD Hero - PT CAPP Retur Management System | Cloud Database | Owned by Yenny")
