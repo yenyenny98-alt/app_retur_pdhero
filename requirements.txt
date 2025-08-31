@@ -1,5 +1,6 @@
 --prefer-binary
 streamlit==1.29.0
 pandas==1.5.3
+numpy==1.24.3
 supabase==1.0.3
 python-dotenv==1.0.0
