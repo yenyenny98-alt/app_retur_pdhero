@@ -505,25 +505,24 @@ with tab1:
     if filtered_df.empty:
         st.info("Tidak ada retur yang menunggu persetujuan")
     else:
-        for idx, retur in filtered_df.iterrows():
-            display_retur_card(retur, "badge-waiting", idx)
+        for idx, row in filtered_df.iterrows():  # <-- PASTIKAN 'row' bukan 'retur'
+            display_retur_card(row, "badge-waiting", idx)  # <-- Kirim 'row'
 
 with tab2:
     filtered_df = filter_data_by_status(retur_df, "Sudah Disetujui")
     if filtered_df.empty:
         st.info("Tidak ada retur yang sudah disetujui")
     else:
-        for idx, retur in filtered_df.iterrows():
-            display_retur_card(retur, "badge-approved", idx)
+        for idx, row in filtered_df.iterrows():  # <-- 'row' bukan 'retur'
+            display_retur_card(row, "badge-approved", idx)
 
 with tab3:
     filtered_df = filter_data_by_status(retur_df, "Sudah Dimusnahkan")
     if filtered_df.empty:
         st.info("Tidak ada retur yang sudah dimusnahkan")
     else:
-        for idx, retur in filtered_df.iterrows():
-            display_retur_card(retur, "badge-destroyed", idx)
-
+        for idx, row in filtered_df.iterrows():  # <-- 'row' bukan 'retur'
+            display_retur_card(row, "badge-destroyed", idx)
 # Form Pemusnahan
 if st.session_state.show_destroy_form is not None:
     st.markdown("---")
