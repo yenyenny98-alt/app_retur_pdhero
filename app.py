@@ -275,17 +275,16 @@ def display_retur_card(retur, badge_class, idx):
             
             col5, col6 = st.columns(2)
             with col5:
-                st.write(f"**No Nota Retur:** {retur['No Nota Retur']}")
-                st.write(f"**Nama Barang:** {retur['Nama Barang']}")
-                st.write(f"**Quantity:** {quantity_display}")
-                st.write(f"**Tanggal Pengajuan:** {format_tanggal(retur['Tanggal Pengajuan'])}")
-                st.write(f"**Dibuat Pada:** {format_tanggal(retur['Dibuat Pada'])}")
+                st.write(f"**No. Nota Retur    :** {retur['No Nota Retur']}")
+                st.write(f"**Tanggal Pengajuan :** {format_tanggal(retur['Tanggal Pengajuan'])}")
+                st.write(f"**Nama Barang       :** {retur['Nama Barang']}")
+                st.write(f"**Quantity          :** {quantity_display}")
             
             with col6:
-                st.write(f"**Tanggal ED:** {format_tanggal(retur['Tanggal ED'])}")
-                st.write(f"**Alasan:** {retur['Alasan']}")
-                st.write(f"**Status:** {retur['Status']}")
-                st.write(f"**Diupdate Pada:** {format_tanggal(retur['Diupdate Pada'])}")
+                st.write(f"**Tanggal ED        :** {format_tanggal(retur['Tanggal ED'])}")
+                st.write(f"**Alasan            :** {retur['Alasan']}")
+                st.write(f"**Status            :** {retur['Status']}")
+                st.write(f"**Diupdate Pada     :** {format_tanggal(retur['Diupdate Pada'])}")
             
             st.markdown("---")
             
@@ -449,6 +448,8 @@ if st.session_state.show_add_form:
             if alasan_option == "Isi sendiri":
                 custom_reason = st.text_input("Masukkan alasan retur*", placeholder="Ketik alasan retur di sini")
                 alasan = custom_reason
+            else:
+                st.warning("Harap isi alasan retur")
             else:
                 alasan = alasan_option
         
