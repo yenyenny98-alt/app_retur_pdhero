@@ -340,6 +340,12 @@ def display_retur_card(retur, badge_class, idx):
                             st.rerun()
                     except Exception as e:
                         st.error(f"Error deleting retur: {str(e)}")
+
+            st.markdown("<br>", unsafe_allow_html=True)  # Spacer
+            if st.button("✏️ Edit Data Retur", key=f"edit_{retur_id}_{idx}", use_container_width=True):
+            st.session_state.edit_retur_id = retur_id
+            st.session_state.show_edit_form = True
+            st.rerun()
             
             st.markdown("---")
 # ==================== BAGIAN UTAMA APLIKASI ====================
@@ -451,7 +457,7 @@ if st.session_state.show_add_form:
             else:
                 st.warning("Harap isi alasan retur")
             else:
-                alasan = alasan_option
+              20 alasan = alasan_option
         
         col1, col2 = st.columns(2)
         with col1:
