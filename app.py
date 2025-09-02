@@ -450,7 +450,7 @@ if st.session_state.show_add_form:
                 custom_reason = st.text_input("Masukkan alasan retur*", placeholder="Ketik alasan retur di sini")
                 alasan = custom_reason
             else:
-                st.warning("Harap isi alasan retur")
+                alasan = alasan_option
 
         
         col1, col2 = st.columns(2)
