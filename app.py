@@ -447,7 +447,8 @@ if st.session_state.show_add_form:
             ])
             
             if alasan_option == "Isi sendiri":
-                custom_reason = st.text_input("Masukkan alasan retur*", placeholder="Ketik alasan retur di sini")
+                custom_reason = st.text_input("Masukkan alasan retur*", placeholder="Ketik alasan retur di sini", key="custom_reason_input")
+                st.session_state.custom_reason = custom_reason
                 alasan = custom_reason
             else:
                 alasan = alasan_option
