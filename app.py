@@ -342,7 +342,7 @@ def display_retur_card(retur, badge_class, idx):
                         st.error(f"Error deleting retur: {str(e)}")
 
             st.markdown("<br>", unsafe_allow_html=True)  # Spacer
-                 if st.button("✏️ Edit Data Retur", key=f"edit_{retur_id}_{idx}", use_container_width=True):
+                if st.button("✏️ Edit Data Retur", key=f"edit_{retur_id}_{idx}", use_container_width=True):
                     st.session_state.edit_retur_id = retur_id
                     st.session_state.show_edit_form = True
                     st.rerun()
