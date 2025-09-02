@@ -342,6 +342,7 @@ def display_retur_card(retur, badge_class, idx):
                         st.error(f"Error deleting retur: {str(e)}")
 
             st.markdown("---")
+
 # ==================== BAGIAN UTAMA APLIKASI ====================
 # Load data jika belum diload
 if st.session_state.retur_data is None:
@@ -450,8 +451,7 @@ if st.session_state.show_add_form:
                 alasan = custom_reason
             else:
                 st.warning("Harap isi alasan retur")
-            else:
-              20 alasan = alasan_option
+
         
         col1, col2 = st.columns(2)
         with col1:
