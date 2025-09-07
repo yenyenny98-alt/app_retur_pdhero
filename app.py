@@ -445,14 +445,19 @@ if st.session_state.show_add_form:
                 "Lembab dan Menggumpal", 
                 "Isi sendiri"
             ])
+      
+            alasan_option = st.selectbox("Alasan Retur*", alasan_options)
+
+            if 'custom_reason' not in st.session_state:
+                st.session_state.custom_reason = "" 
             
             if alasan_option == "Isi sendiri":
-                custom_reason = st.text_input("Masukkan alasan retur*", placeholder="Ketik alasan retur di sini", key="custom_reason_input")
+                custom_reason = st.text_input("Masukkan alasan retur*", value=st.session_state.custom_reason, placeholder="Ketik alasan retur di sini", key="custom_reason_input")
                 st.session_state.custom_reason = custom_reason
-                alasan = custom_reason if custom_reason else "Isi sendiri"
+                alasan = custom_reason
             else:
                 alasan = alasan_option
-
+                st.session_state.custom_reason = ""
         
         col1, col2 = st.columns(2)
         with col1:
