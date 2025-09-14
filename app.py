@@ -444,15 +444,15 @@ if st.session_state.show_add_form:
                 "Plastik Dalam Pecah", 
                 "Lembab dan Menggumpal", 
                 "Isi sendiri"
-            ])
+            ], key="alasan_option")
       
             
-            if alasan_option == "Isi sendiri":
-                alasan_custom = st.text_input("Alasan custom*")
-                st.session_state.custom_reason = custom_reason
-                alasan = custom_reason
+            if st.session_state.alasan_option == "Isi sendiri":
+                custom_reason = st.text_input("Masukkan alasan retur*", placeholder="Ketik alasan di sini", key="custom_reason")
+                alasan = st.session_state.custom_reason
             else:
-                alasan_custom = alasan_option
+                alasan = st.session_state.alasan_option
+                st.session_state.custom_reason = ""
         
         col1, col2 = st.columns(2)
         with col1:
@@ -463,7 +463,7 @@ if st.session_state.show_add_form:
                 st.rerun()
         
         if submitted:
-            if not barang or (alasan_option == "Isi sendiri" and not custom_reason):
+            if not barang or (alasan_option == "Isi sendiri" and not st.session_state.custom_reason.strip()):
                 st.error("Harap isi semua field yang wajib (*)")
             else:
                 new_data = pd.DataFrame([{
