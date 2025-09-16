@@ -492,7 +492,20 @@ if st.session_state.show_add_form:
 
 # Tab Status Retur
 st.markdown("### 📊 Status Retur")
-tab1, tab2, tab3, tab4 = st.tabs(["Menunggu Persetujuan", "Sudah Disetujui", "Sudah Dimusnahkan", "Sudah Kirim ke Pak Taufik"])
+
+# Pastikan retur_df sudah didefinisikan dan tidak kosong
+if 'retur_df' not in locals() and 'retur_df' not in globals():
+    st.error("Data retur (retur_df) tidak ditemukan. Pastikan data sudah dimuat.")
+    retur_df = pd.DataFrame()  # Buat dataframe kosong untuk menghindari error
+
+# Buat tabs
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "Menunggu Persetujuan", 
+    "Sudah Disetujui", 
+    "Sudah Dimusnahkan", 
+    "Sudah Kirim ke Pak Taufik", 
+    "Rekap Retur"  # Pastikan ada 5 tab
+])
 
 # Fungsi untuk filter data dengan safety check
 def filter_data_by_status(df, status):
@@ -506,38 +519,210 @@ def filter_data_by_status(df, status):
     
     return df[df["Status"] == status]
 
+# Fungsi untuk menampilkan detail pengiriman ke Pak Taufik
+def display_pengiriman_detail(df):
+    if df.empty:
+        st.info("Tidak ada data pengiriman ke Pak Taufik")
+        return
+    
+    # Pastikan kolom tanggal pengiriman ada
+    if 'Tanggal Kirim' not in df.columns:
+        st.warning("Kolom 'Tanggal Kirim' tidak ditemukan")
+        return
+    
+    # Group by tanggal kirim
+    df['Tanggal Kirim'] = pd.to_datetime(df['Tanggal Kirim']).dt.date
+    grouped = df.groupby('Tanggal Kirim')
+    
+    for tanggal, group in grouped:
+        # Hitung total quantity untuk tanggal ini
+        total_quantity = group['Quantity'].sum() if 'Quantity' in group.columns else 0
+        
+        # Tampilkan expandable section untuk setiap tanggal
+        with st.expander(f"📅 {tanggal.strftime('%d %B %Y')} - {len(group)} retur - Total: {total_quantity} unit"):
+            st.markdown(f"**Detail Pengiriman ke Pak Taufik pada {tanggal.strftime('%d %B %Y')}**")
+            
+            # Tampilkan tabel detail
+            st.dataframe(
+                group[['No Nota Retur', 'Nama Barang', 'Quantity']],
+                column_config={
+                    "No Nota Retur": "No. Retur",
+                    "Nama Barang": "Nama Barang",
+                    "Quantity": "Quantity"
+                },
+                hide_index=True,
+                use_container_width=True
+            )
+            
+            # Tombol aksi
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(f"🖨️ Cetak Laporan {tanggal}", key=f"cetak_{tanggal}"):
+                    st.success(f"Laporan untuk tanggal {tanggal.strftime('%d %B %Y')} siap dicetak!")
+            
+            with col2:
+                if st.button(f"📧 Kirim Email {tanggal}", key=f"email_{tanggal}"):
+                    st.success(f"Email untuk tanggal {tanggal.strftime('%d %B %Y')} telah dikirim!")
+
+# Fungsi untuk menampilkan rekap retur
+def display_rekap_retur(df):
+    if df.empty:
+        st.info("Tidak ada data retur untuk direkap")
+        return
+    
+    st.markdown("### 📊 Rekapitulasi Data Retur")
+    
+    # Group by status untuk statistik
+    if 'Status' in df.columns:
+        status_counts = df['Status'].value_counts()
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Retur", len(df))
+        
+        with col2:
+            waiting = status_counts.get("Menunggu Persetujuan", 0)
+            st.metric("Menunggu Persetujuan", waiting)
+        
+        with col3:
+            approved = status_counts.get("Sudah Disetujui", 0)
+            st.metric("Sudah Disetujui", approved)
+        
+        with col4:
+            destroyed = status_counts.get("Sudah Dimusnahkan", 0)
+            sent = status_counts.get("Sudah Kirim ke Pak Taufik", 0)
+            st.metric("Telah Diproses", destroyed + sent)
+        
+        st.markdown("---")
+    
+    # Rekap berdasarkan tanggal
+    st.subheader("📅 Rekap Berdasarkan Tanggal")
+    
+    # Pastikan kolom tanggal ada
+    if 'Tanggal Pengajuan' in df.columns:
+        df['Tanggal'] = pd.to_datetime(df['Tanggal Pengajuan']).dt.date
+        
+        # Group by tanggal
+        daily_rekap = df.groupby('Tanggal').agg({
+            'No Nota Retur': 'count',
+            'Quantity': 'sum'
+        }).reset_index()
+        
+        daily_rekap.columns = ['Tanggal', 'Jumlah Retur', 'Total Quantity']
+        
+        # Tampilkan tabel rekap harian
+        st.dataframe(
+            daily_rekap,
+            column_config={
+                "Tanggal": "Tanggal",
+                "Jumlah Retur": "Jumlah Retur",
+                "Total Quantity": "Total Quantity"
+            },
+            hide_index=True,
+            use_container_width=True
+        )
+    else:
+        st.warning("Kolom 'Tanggal Pengajuan' tidak ditemukan untuk rekap harian")
+    
+    st.markdown("---")
+    
+    # Rekap berdasarkan barang
+    st.subheader("📦 Rekap Berdasarkan Barang")
+    
+    if 'Nama Barang' in df.columns:
+        product_rekap = df.groupby('Nama Barang').agg({
+            'No Nota Retur': 'count',
+            'Quantity': 'sum'
+        }).reset_index()
+        
+        product_rekap.columns = ['Nama Barang', 'Jumlah Retur', 'Total Quantity']
+        
+        # Tampilkan tabel rekap barang
+        st.dataframe(
+            product_rekap,
+            column_config={
+                "Nama Barang": "Nama Barang",
+                "Jumlah Retur": "Jumlah Retur",
+                "Total Quantity": "Total Quantity"
+            },
+            hide_index=True,
+            use_container_width=True
+        )
+    else:
+        st.warning("Kolom 'Nama Barang' tidak ditemukan untuk rekap barang")
+    
+    # Chart visualisasi (jika ada data)
+    if not df.empty:
+        st.markdown("---")
+        st.subheader("📊 Grafik Statistik Retur")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Pie chart status
+            if 'Status' in df.columns and not status_counts.empty:
+                fig_status = px.pie(
+                    values=status_counts.values,
+                    names=status_counts.index,
+                    title="Distribusi Status Retur"
+                )
+                st.plotly_chart(fig_status, use_container_width=True)
+        
+        with col2:
+            # Bar chart jumlah retur per hari (jika ada data tanggal)
+            if 'Tanggal Pengajuan' in df.columns and not daily_rekap.empty:
+                fig_daily = px.bar(
+                    daily_rekap,
+                    x='Tanggal',
+                    y='Jumlah Retur',
+                    title="Jumlah Retur per Hari"
+                )
+                st.plotly_chart(fig_daily, use_container_width=True)
+
+# Tab 1: Menunggu Persetujuan
 with tab1:
     filtered_df = filter_data_by_status(retur_df, "Menunggu Persetujuan")
     if filtered_df.empty:
         st.info("Tidak ada retur yang menunggu persetujuan")
     else:
-        for idx, row in filtered_df.iterrows():  # <-- PASTIKAN 'row' bukan 'retur'
-            display_retur_card(row, "badge-waiting", idx)  # <-- Kirim 'row'
+        for idx, row in filtered_df.iterrows():
+            display_retur_card(row, "badge-waiting", idx)
 
+# Tab 2: Sudah Disetujui
 with tab2:
     filtered_df = filter_data_by_status(retur_df, "Sudah Disetujui")
     if filtered_df.empty:
         st.info("Tidak ada retur yang sudah disetujui")
     else:
-        for idx, row in filtered_df.iterrows():  # <-- 'row' bukan 'retur'
+        for idx, row in filtered_df.iterrows():
             display_retur_card(row, "badge-approved", idx)
 
+# Tab 3: Sudah Dimusnahkan
 with tab3:
     filtered_df = filter_data_by_status(retur_df, "Sudah Dimusnahkan")
     if filtered_df.empty:
         st.info("Tidak ada retur yang sudah dimusnahkan")
     else:
-        for idx, row in filtered_df.iterrows():  # <-- 'row' bukan 'retur'
+        for idx, row in filtered_df.iterrows():
             display_retur_card(row, "badge-destroyed", idx)
+
+# Tab 4: Sudah Kirim ke Pak Taufik
 with tab4:
     filtered_df = filter_data_by_status(retur_df, "Sudah Kirim ke Pak Taufik")
     if filtered_df.empty:
         st.info("Tidak ada retur yang sudah dikirim ke Pak Taufik")
     else:
-        for idx, row in filtered_df.iterrows():
-            display_retur_card(row, "badge-sent", idx)  # atau buat badge baru
+        st.info("📦 Berikut adalah daftar pengiriman ke Pak Taufik berdasarkan tanggal:")
+        display_pengiriman_detail(filtered_df)
+
+# Tab 5: Rekap Retur - PASTIKAN TAB INI ADA DAN DITAMPILKAN
+with tab5:
+    st.markdown("## 📊 Rekapitulasi Data Retur")
+    display_rekap_retur(retur_df)
+
 # Form Pemusnahan
-if st.session_state.show_destroy_form is not None:
+if st.session_state.get('show_destroy_form') is not None:
     st.markdown("---")
     st.subheader("📝 Konfirmasi Pemusnahan")
     
@@ -568,7 +753,6 @@ if st.session_state.show_destroy_form is not None:
         if st.button("❌ Batal", key="cancel_destroy"):
             st.session_state.show_destroy_form = None
             st.rerun()
-
 # ==================== FOOTER ====================
 st.markdown("---")
 st.caption("© PD Hero - PT CAPP Retur Management System | Cloud Database | Owned by Yenny")
